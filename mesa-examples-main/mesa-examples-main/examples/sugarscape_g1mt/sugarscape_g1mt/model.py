@@ -202,6 +202,6 @@ class SugarscapeG1mt(mesa.Model):
         # Reassign the dictionary value with lean trade data
         self.datacollector._agent_records[self._steps] = agent_trades
 
-    def run_model(self, step_count=1000):
+    def run_model(self, step_count=200):
         for i in range(step_count):
             self.step()
