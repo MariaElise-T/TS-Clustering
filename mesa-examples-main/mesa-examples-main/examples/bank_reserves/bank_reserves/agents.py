@@ -16,9 +16,9 @@ from .random_walk import RandomWalker
 
 
 class Bank(mesa.Agent):
-    def __init__(self, unique_id, model, reserve_percent=50):
+    def __init__(self, model, reserve_percent=50):
         # initialize the parent class with required parameters
-        super().__init__(unique_id, model)
+        super().__init__(model)
         # for tracking total value of loans outstanding
         self.bank_loans = 0
         """percent of deposits the bank must keep in reserves - this is set via
@@ -42,9 +42,10 @@ class Bank(mesa.Agent):
 
 # subclass of RandomWalker, which is subclass to Mesa Agent
 class Person(RandomWalker):
-    def __init__(self, unique_id, pos, model, moore, bank, rich_threshold):
+    def __init__(self, pos, model, moore, bank, rich_threshold):
         # init parent class with required parameters
-        super().__init__(unique_id, pos, model, moore=moore)
+        # super().__init__(self, pos, model, moore=moore)
+        super().__init__(pos, model, moore=moore)
         # the amount each person has in savings
         self.savings = 0
         # total loan amount person has outstanding

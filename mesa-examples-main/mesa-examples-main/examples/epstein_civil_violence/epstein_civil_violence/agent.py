@@ -55,7 +55,7 @@ class Citizen(mesa.Agent):
                 agent can inspect. Exogenous.
             model: model instance
         """
-        super().__init__(unique_id, model)
+        super().__init__(model)
         self.breed = "citizen"
         self.pos = pos
         self.hardship = hardship
@@ -129,7 +129,7 @@ class Cop(mesa.Agent):
             able to inspect
     """
 
-    def __init__(self, unique_id, model, pos, vision):
+    def __init__(self, model, pos, vision):
         """
         Create a new Cop.
         Args:
@@ -139,7 +139,7 @@ class Cop(mesa.Agent):
                 agent can inspect. Exogenous.
             model: model instance
         """
-        super().__init__(unique_id, model)
+        super().__init__(model)
         self.breed = "cop"
         self.pos = pos
         self.vision = vision
