@@ -1,5 +1,4 @@
 import mesa
-
 from .agent import TreeCell
 
 
@@ -9,18 +8,18 @@ class ForestFire(mesa.Model):
     """
 
     def __init__(self, width=100, height=100, density=0.65):
-        """
-        Create a new forest fire model.
-
-        Args:
-            width, height: The size of the grid to model
-            density: What fraction of grid cells have a tree in them.
-        """
         super().__init__()
-        # Set up model objects
+
+        self.width = width
+        self.height = height
+
+        # Scheduler (works in Mesa 1.x)
         self.schedule = mesa.time.RandomActivation(self)
+
+        # Grid
         self.grid = mesa.space.SingleGrid(width, height, torus=False)
 
+        # Data collector
         self.datacollector = mesa.DataCollector(
             {
                 "Fine": lambda m: self.count_type(m, "Fine"),
@@ -29,16 +28,23 @@ class ForestFire(mesa.Model):
             }
         )
 
-        # Place a tree in each cell with Prob = density
-        for contents, (x, y) in self.grid.coord_iter():
-            if self.random.random() < density:
-                # Create a tree
-                new_tree = TreeCell((x, y), self)
-                # Set all trees in the first column on fire.
-                if x == 0:
-                    new_tree.condition = "On Fire"
-                self.grid.place_agent(new_tree, (x, y))
-                self.schedule.add(new_tree)
+        # ---------------------------
+        # Populate grid with trees
+        # ---------------------------
+        for x in range(width):
+            for y in range(height):
+
+                if self.random.random() < density:
+
+                    # IMPORTANT: correct Mesa-style agent creation
+                    new_tree = TreeCell((x, y), self)
+
+                    # ignite left edge
+                    if x == 0:
+                        new_tree.condition = "On Fire"
+
+                    self.grid.place_agent(new_tree, (x, y))
+                    self.schedule.add(new_tree)
 
         self.running = True
         self.datacollector.collect(self)
@@ -48,20 +54,18 @@ class ForestFire(mesa.Model):
         Advance the model by one step.
         """
         self.schedule.step()
-        # collect data
         self.datacollector.collect(self)
 
-        # Halt if no more fire
+        # Stop if no fire remains
         if self.count_type(self, "On Fire") == 0:
             self.running = False
 
     @staticmethod
     def count_type(model, tree_condition):
         """
-        Helper method to count trees in a given condition in a given model.
+        Count trees in a given state.
         """
-        count = 0
-        for tree in model.schedule.agents:
-            if tree.condition == tree_condition:
-                count += 1
-        return count
+        return sum(
+            1 for agent in model.schedule.agents
+            if agent.condition == tree_condition
+        )
